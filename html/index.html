@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estoque Pokémon - Seleção de Cartas</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+        h1 {
+            color: #e3350d;
+        }
+        .search-container {
+            margin-bottom: 25px;
+            display: flex;
+            gap: 10px;
+        }
+        input {
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            width: 250px;
+        }
+        button {
+            padding: 12px 20px;
+            font-size: 16px;
+            background-color: #e3350d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background-color: #b52a0a;
+        }
+
+        /* Container de Resultados (Galeria) */
+        .results-section {
+            width: 100%;
+            max-width: 1000px;
+            margin-bottom: 30px;
+        }
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .grid-item {
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .grid-item:hover {
+            transform: scale(1.08);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .grid-item img {
+            width: 100%;
+            display: block;
+        }
+
+        /* Card de Detalhes (Selecionado) */
+        .selected-card-container {
+            display: none; /* Oculto até o clique */
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            padding: 25px;
+            max-width: 350px;
+            text-align: center;
+            border-top: 5px solid #e3350d;
+        }
+        .selected-card-container img {
+            max-width: 240px;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .card-info {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .price {
+            color: #2e7d32;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Meu Estoque Pokémon</h1>
+    
+    <div class="search-container">
+        <input type="text" id="pokemonName" placeholder="Ex: Pikachu, Charizard...">
+        <button onclick="buscarCartas()">Buscar Cartas</button>
+    </div>
+
+    <div class="results-section" id="resultsSection" style="display: none;">
+        <h3>Clique na carta que você possui para ver os detalhes:</h3>
+        <div class="results-grid" id="resultsGrid"></div>
+    </div>
+
+    <hr style="width:100%; max-width:1000px; border: 0; border-top: 1px solid #ccc; margin: 20px 0;">
+
+    <div id="selectedCard" class="selected-card-container">
+        <h2 id="cardName" style="margin-top: 0;">Nome</h2>
+        <img id="cardImage" src="" alt="Imagem selecionada">
+        <div class="card-info">
+            <p><strong>Coleção:</strong> <span id="cardSet"></span></p>
+            <p><strong>Número:</strong> <span id="cardNumber"></span></p>
+            <p><strong>Raridade:</strong> <span id="cardRarity"></span></p>
+            <p><strong>Preço de Mercado (USD):</strong> <span id="cardPrice" class="price"></span></p>
+        </div>
+    </div>
+
+    <script>
+        // Variável global para guardar os resultados da busca atual
+        let cartasEncontradas = [];
+
+        async function buscarCartas() {
+            const name = document.getElementById('pokemonName').value.trim();
+            if (!name) {
+                alert('Por favor, digite um nome!');
+                return;
+            }
+
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsGrid = document.getElementById('resultsGrid');
+            const selectedCardDiv = document.getElementById('selectedCard');
+            
+            // Esconde a área de detalhes ao fazer uma nova busca
+            selectedCardDiv.style.display = 'none';
+            resultsGrid.innerHTML = 'Carregando...';
+            resultsSection.style.display = 'block';
+
+            try {
+                // Buscamos até 50 cartas que tenham esse nome exato para o usuário escolher
+                const url = `https://api.pokemontcg.io/v2/cards?q=name:${name}&pageSize=50`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                cartasEncontradas = data.data || [];
+
+                if (cartasEncontradas.length > 0) {
+                    resultsGrid.innerHTML = ''; // Limpa o "Carregando..."
+                    
+                    // Cria as miniaturas na tela
+                    cartasEncontradas.forEach((carta, index) => {
+                        const gridItem = document.createElement('div');
+                        gridItem.className = 'grid-item';
+                        // Passamos o index da carta no array para saber qual foi clicada
+                        gridItem.setAttribute('onclick', `selecionarCarta(${index})`);
+                        
+                        const img = document.createElement('img');
+                        img.src = carta.images.small;
+                        img.alt = carta.name;
+                        
+                        gridItem.appendChild(img);
+                        resultsGrid.appendChild(gridItem);
+                    });
+                } else {
+                    resultsGrid.innerHTML = 'Nenhuma carta encontrada.';
+                }
+
+            } catch (error) {
+                console.error('Erro na API:', error);
+                resultsGrid.innerHTML = 'Erro ao conectar com o servidor.';
+            }
+        }
+
+        // Função chamada quando o usuário clica em uma das imagens da galeria
+        function selecionarCarta(index) {
+            const carta = cartasEncontradas[index];
+            const selectedCardDiv = document.getElementById('selectedCard');
+
+            // Preenche os detalhes da carta clicada
+            document.getElementById('cardName').innerText = carta.name;
+            document.getElementById('cardImage').src = carta.images.large; // Imagem maior e mais bonita para o card de destaque
+            document.getElementById('cardSet').innerText = carta.set.name;
+            document.getElementById('cardNumber').innerText = `${carta.number}/${carta.set.printedTotal}`;
+            document.getElementById('cardRarity').innerText = carta.rarity || 'Não informada';
+            
+            // Busca o preço de mercado
+            if (carta.tcgplayer && carta.tcgplayer.prices) {
+                const tipoPreco = Object.keys(carta.tcgplayer.prices)[0];
+                const preco = carta.tcgplayer.prices[tipoPreco].market;
+                document.getElementById('cardPrice').innerText = preco ? `$${preco.toFixed(2)}` : 'Não disponível';
+            } else {
+                document.getElementById('cardPrice').innerText = 'Não disponível';
+            }
+
+            // Exibe o card de detalhes
+            selectedCardDiv.style.display = 'block';
+            
+            // Rola a tela suavemente até o card selecionado
+            selectedCardDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
