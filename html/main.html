@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Estoque Pokémon TCG</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .search-container {
+            margin-bottom: 20px;
+        }
+        input, button {
+            padding: 10px;
+            font-size: 16px;
+        }
+        /* Estilização do Card */
+        .card-pokemon {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            padding: 20px;
+            max-width: 300px;
+            text-align: center;
+            display: none; /* Escondido até achar uma carta */
+        }
+        .card-pokemon img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+        .card-info {
+            margin-top: 15px;
+            text-align: left;
+        }
+        .price {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Busca de Cartas Pokémon</h1>
+    
+    <div class="search-container">
+        <input type="text" id="pokemonName" placeholder="Digite o nome do Pokémon (ex: Pikachu)">
+        <button onclick="buscarCarta()">Buscar</button>
+    </div>
+
+    <div id="pokemonCard" class="card-pokemon">
+        <h2 id="cardName">Nome do Pokémon</h2>
+        <img id="cardImage" src="" alt="Imagem da carta">
+        <div class="card-info">
+            <p><strong>Coleção:</strong> <span id="cardSet"></span></p>
+            <p><strong>Raridade:</strong> <span id="cardRarity"></span></p>
+            <p><strong>Preço Estimado (USD):</strong> <span id="cardPrice" class="price"></span></p>
+        </div>
+    </div>
+
+    <script>
+        async function buscarCarta() {
+            const name = document.getElementById('pokemonName').value.trim();
+            if (!name) {
+                alert('Por favor, digite um nome!');
+                return;
+            }
+
+            const cardDiv = document.getElementById('pokemonCard');
+            
+            try {
+                // URL da API filtrando pelo nome digitado
+                // Limitamos a 1 resultado para o teste ficar mais simples
+                const url = `https://api.pokemontcg.io/v2/cards?q=name:${name}&pageSize=1`;
+                
+                // Fazendo a requisição à API
+                const response = await fetch(url);
+                const data = await response.json();
+
+                // Verifica se encontrou alguma carta
+                if (data.data && data.data.length > 0) {
+                    const carta = data.data[0]; // Pega a primeira carta retornada
+
+                    // Preenche os dados no HTML
+                    document.getElementById('cardName').innerText = carta.name;
+                    document.getElementById('cardImage').src = carta.images.small;
+                    document.getElementById('cardSet').innerText = carta.set.name;
+                    document.getElementById('cardRarity').innerText = carta.rarity || 'Não informada';
+                    
+                    // Tenta buscar o preço de mercado no TCGPlayer dentro do objeto da API
+                    if (carta.tcgplayer && carta.tcgplayer.prices) {
+                        // Pega o preço médio de mercado (marketPrice) de uma das categorias normais/holofoil
+                        const tipoPreco = Object.keys(carta.tcgplayer.prices)[0];
+                        const preco = carta.tcgplayer.prices[tipoPreco].market;
+                        document.getElementById('cardPrice').innerText = preco ? `$${preco.toFixed(2)}` : 'N/A';
+                    } else {
+                        document.getElementById('cardPrice').innerText = 'Não disponível';
+                    }
+
+                    // Mostra o card na tela
+                    cardDiv.style.display = 'block';
+                } else {
+                    alert('Nenhuma carta encontrada com esse nome.');
+                    cardDiv.style.display = 'none';
+                }
+
+            } catch (error) {
+                console.error('Erro ao buscar a carta:', error);
+                alert('Erro ao conectar com a API.');
+            }
+        }
+    </script>
+</body>
+</html>
