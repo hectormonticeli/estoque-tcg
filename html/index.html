@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estoque Pokémon - Seleção de Cartas</title>
+    <title>Estoque Pokémon - Filtros e Cotação</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -22,13 +22,18 @@
             margin-bottom: 25px;
             display: flex;
             gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
-        input {
+        input, select {
             padding: 12px;
             font-size: 16px;
             border: 2px solid #ccc;
             border-radius: 8px;
-            width: 250px;
+            background: white;
+        }
+        input {
+            width: 220px;
         }
         button {
             padding: 12px 20px;
@@ -106,6 +111,18 @@
     
     <div class="search-container">
         <input type="text" id="pokemonName" placeholder="Ex: Pikachu, Charizard...">
+        
+        <select id="cardSubtype">
+            <option value="">Todos os estilos</option>
+            <option value="EX">EX</option>
+            <option value="GX">GX</option>
+            <option value="V">V</option>
+            <option value="VMAX">VMAX</option>
+            <option value="MEGA">Mega</option>
+            <option value="STAGE 1">Estágio 1 (Evoluído)</option>
+            <option value="BASIC">Básica (Padrão)</option>
+        </select>
+
         <button onclick="buscarCartas()">Buscar Cartas</button>
     </div>
 
@@ -123,16 +140,35 @@
             <p><strong>Coleção:</strong> <span id="cardSet"></span></p>
             <p><strong>Número:</strong> <span id="cardNumber"></span></p>
             <p><strong>Raridade:</strong> <span id="cardRarity"></span></p>
-            <p><strong>Preço de Mercado (USD):</strong> <span id="cardPrice" class="price"></span></p>
+            <p><strong>Preço de Mercado (BRL):</strong> <span id="cardPrice" class="price"></span></p>
+            <p style="font-size: 0.8em; color: gray; margin-top: 5px;">*Convertido do USD com a cotação atual do mercado.</p>
         </div>
     </div>
 
     <script>
-        // Variável global para guardar os resultados da busca atual
         let cartasEncontradas = [];
+        let cotacaoDolar = 1; // Padrão caso dê erro na API de câmbio
+
+        // Carrega a cotação atual do dólar assim que a página abre
+        async function carregarCotacaoDolar() {
+            try {
+                const response = await fetch('https://economia.awesomeapi.com.br/json/last/USD-BRL');
+                const data = await response.json();
+                cotacaoDolar = parseFloat(data.USDBRL.bid);
+                console.log(`Cotação atual obtida: R$ ${cotacaoDolar.toFixed(2)}`);
+            } catch (error) {
+                console.error("Erro ao obter cotação. Usando conversão de segurança a R$ 6.00", error);
+                cotacaoDolar = 6.00; // Valor aproximado de segurança
+            }
+        }
+
+        // Executa a busca de câmbio ao iniciar a tela
+        carregarCotacaoDolar();
 
         async function buscarCartas() {
             const name = document.getElementById('pokemonName').value.trim();
+            const subtype = document.getElementById('cardSubtype').value;
+
             if (!name) {
                 alert('Por favor, digite um nome!');
                 return;
@@ -142,27 +178,30 @@
             const resultsGrid = document.getElementById('resultsGrid');
             const selectedCardDiv = document.getElementById('selectedCard');
             
-            // Esconde a área de detalhes ao fazer uma nova busca
             selectedCardDiv.style.display = 'none';
             resultsGrid.innerHTML = 'Carregando...';
             resultsSection.style.display = 'block';
 
             try {
-                // Buscamos até 50 cartas que tenham esse nome exato para o usuário escolher
-                const url = `https://api.pokemontcg.io/v2/cards?q=name:${name}&pageSize=50`;
+                // Criando a URL dinâmica baseado nos filtros preenchidos
+                let query = `name:${name}`;
+                if (subtype) {
+                    query += ` subtypes:"${subtype}"`;
+                }
+
+                // URL com os parâmetros de consulta (Query)
+                const url = `https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(query)}&pageSize=50`;
                 const response = await fetch(url);
                 const data = await response.json();
 
                 cartasEncontradas = data.data || [];
 
                 if (cartasEncontradas.length > 0) {
-                    resultsGrid.innerHTML = ''; // Limpa o "Carregando..."
+                    resultsGrid.innerHTML = '';
                     
-                    // Cria as miniaturas na tela
                     cartasEncontradas.forEach((carta, index) => {
                         const gridItem = document.createElement('div');
                         gridItem.className = 'grid-item';
-                        // Passamos o index da carta no array para saber qual foi clicada
                         gridItem.setAttribute('onclick', `selecionarCarta(${index})`);
                         
                         const img = document.createElement('img');
@@ -173,40 +212,42 @@
                         resultsGrid.appendChild(gridItem);
                     });
                 } else {
-                    resultsGrid.innerHTML = 'Nenhuma carta encontrada.';
+                    resultsGrid.innerHTML = 'Nenhuma carta encontrada com esses critérios.';
                 }
 
             } catch (error) {
-                console.error('Erro na API:', error);
+                console.error('Erro na API de Pokémon:', error);
                 resultsGrid.innerHTML = 'Erro ao conectar com o servidor.';
             }
         }
 
-        // Função chamada quando o usuário clica em uma das imagens da galeria
         function selecionarCarta(index) {
             const carta = cartasEncontradas[index];
             const selectedCardDiv = document.getElementById('selectedCard');
 
-            // Preenche os detalhes da carta clicada
             document.getElementById('cardName').innerText = carta.name;
-            document.getElementById('cardImage').src = carta.images.large; // Imagem maior e mais bonita para o card de destaque
+            document.getElementById('cardImage').src = carta.images.large;
             document.getElementById('cardSet').innerText = carta.set.name;
             document.getElementById('cardNumber').innerText = `${carta.number}/${carta.set.printedTotal}`;
             document.getElementById('cardRarity').innerText = carta.rarity || 'Não informada';
             
-            // Busca o preço de mercado
+            // Tratamento e conversão de preço
             if (carta.tcgplayer && carta.tcgplayer.prices) {
                 const tipoPreco = Object.keys(carta.tcgplayer.prices)[0];
-                const preco = carta.tcgplayer.prices[tipoPreco].market;
-                document.getElementById('cardPrice').innerText = preco ? `$${preco.toFixed(2)}` : 'Não disponível';
+                const precoUSD = parseFloat(carta.tcgplayer.prices[tipoPreco].market);
+                
+                if (precoUSD) {
+                    // Multiplica o valor em USD pela cotação do Real obtida
+                    const precoBRL = precoUSD * cotacaoDolar;
+                    document.getElementById('cardPrice').innerText = `R$ ${precoBRL.toFixed(2)}`;
+                } else {
+                    document.getElementById('cardPrice').innerText = 'Não disponível';
+                }
             } else {
                 document.getElementById('cardPrice').innerText = 'Não disponível';
             }
 
-            // Exibe o card de detalhes
             selectedCardDiv.style.display = 'block';
-            
-            // Rola a tela suavemente até o card selecionado
             selectedCardDiv.scrollIntoView({ behavior: 'smooth' });
         }
     </script>
