@@ -16,27 +16,49 @@
         </nav>
     </header>
 
-    <div class="stats-panel" id="statsPanel">
+    <div class="stats-panel" id="statsPanel" style="margin-bottom: 5px;">
         Valor Total do Estoque: R$ 0,00
     </div>
+    <p style="font-size: 0.85em; color: #555; margin: 0 0 20px 0; max-width: 400px; text-align: center; line-height: 1.3;">
+        ⚠️ <strong>Observação:</strong> O valor total é estimado com base em transações de cartas no estado <strong>Nova (Near Mint - NM)</strong>. Cartas seminuas ou usadas podem ter valor de mercado reduzido.
+    </p>
 
     <div class="container">
         <div class="search-container">
-            <input type="text" id="filterName" placeholder="Filtrar por nome no estoque..." oninput="filtrarEstoque()">
+            <input type="text" id="filterName" placeholder="Filtrar por nome..." oninput="filtrarEstoque()">
+            
+            <select id="filterCondition" onchange="filtrarEstoque()">
+                <option value="">Todos os Estados</option>
+                <option value="Nova">Nova (NM)</option>
+                <option value="Seminova">Seminova (LP)</option>
+                <option value="Usada">Usada (MP)</option>
+            </select>
+
             <select id="filterRarity" onchange="filtrarEstoque()">
-                <option value="">Todas as raridades</option>
+                <option value="">Todas as Raridades</option>
                 <option value="Common">Comum</option>
                 <option value="Uncommon">Incomum</option>
                 <option value="Rare">Rara</option>
                 <option value="Rare Ultra">Rara Ultra</option>
+                <option value="Rare Holo">Holográfica Rara</option>
                 <option value="Promo">Promocional</option>
+            </select>
+
+            <select id="filterSubtype" onchange="filtrarEstoque()">
+                <option value="">Todos os Estilos</option>
+                <option value="EX">EX</option>
+                <option value="GX">GX</option>
+                <option value="V">V</option>
+                <option value="VMAX">VMAX</option>
+                <option value="MEGA">Mega</option>
+                <option value="STAGE 1">Estágio 1</option>
+                <option value="BASIC">Básica</option>
             </select>
         </div>
 
         <h2>Minha Coleção</h2>
         
-        <div class="grid" id="estoqueGrid">
-            </div>
+        <div class="grid" id="estoqueGrid"></div>
     </div>
 
     <script src="../js/api.js"></script>

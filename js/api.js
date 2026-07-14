@@ -1,7 +1,6 @@
 // Variável global para armazenar a cotação comercial
 let cotacaoDolar = 1;
 
-// Busca a cotação atualizada na AwesomeAPI
 async function carregarCotacaoDolar() {
     try {
         const response = await fetch('https://economia.awesomeapi.com.br/json/last/USD-BRL');
@@ -14,10 +13,7 @@ async function carregarCotacaoDolar() {
     }
 }
 
-// Inicia a cotação ao carregar o script
 carregarCotacaoDolar();
-
-// --- FUNÇÕES DE CONTROLE DO ESTOQUE (localStorage) ---
 
 // Retorna a lista de cartas salvas no estoque do navegador
 function obterEstoque() {
@@ -31,18 +27,19 @@ function salvarEstoque(estoque) {
 }
 
 // Adiciona uma carta ou atualiza a quantidade se ela já existir no estoque
-function adicionarAoEstoque(carta, quantidadeAdicional) {
+function adicionarAoEstoque(carta, quantidadeAdicional, estado) {
     let estoque = obterEstoque();
     
-    // Procura se a carta com este ID específico já está no estoque
-    const index = estoque.findIndex(item => item.id === carta.id);
+    // O ID único combina o ID da carta + estado de conservação
+    const idUnico = `${carta.id}-${estado}`;
+    
+    const index = estoque.findIndex(item => item.idUnico === idUnico);
     
     if (index !== -1) {
-        // Se já existe, soma à quantidade atual
         estoque[index].quantidade += quantidadeAdicional;
     } else {
-        // Se é nova, cria o objeto no estoque com a quantidade selecionada
         const novoItem = {
+            idUnico: idUnico,
             id: carta.id,
             name: carta.name,
             image: carta.images.small,
@@ -50,16 +47,16 @@ function adicionarAoEstoque(carta, quantidadeAdicional) {
             number: `${carta.number}/${carta.set.printedTotal}`,
             rarity: carta.rarity || 'Não informada',
             priceUSD: obterPrecoUSD(carta),
-            quantidade: quantidadeAdicional
+            quantidade: quantidadeAdicional,
+            estado: estado
         };
         estoque.push(novoItem);
     }
     
     salvarEstoque(estoque);
-    alert(`${quantidadeAdicional}x ${carta.name} adicionado ao estoque!`);
+    alert(`${quantidadeAdicional}x ${carta.name} (${estado}) adicionado ao estoque!`);
 }
 
-// Função auxiliar para extrair o preço de mercado da carta
 function obterPrecoUSD(carta) {
     if (carta.tcgplayer && carta.tcgplayer.prices) {
         const tipoPreco = Object.keys(carta.tcgplayer.prices)[0];

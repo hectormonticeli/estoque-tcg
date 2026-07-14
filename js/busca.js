@@ -4,9 +4,11 @@ let cartaSelecionada = null;
 async function buscarCartas() {
     const name = document.getElementById('pokemonName').value.trim();
     const subtype = document.getElementById('cardSubtype').value;
+    const rarity = document.getElementById('cardRarity').value;
+    const set = document.getElementById('cardSet').value;
 
-    if (!name) {
-        alert('Por favor, digite um nome!');
+    if (!name && !set) {
+        alert('Por favor, digite um nome ou escolha uma coleção!');
         return;
     }
 
@@ -14,27 +16,24 @@ async function buscarCartas() {
     const resultsGrid = document.getElementById('resultsGrid');
     const selectedCardDiv = document.getElementById('selectedCard');
     
-    // 1. Esconde o card de detalhes anterior
     selectedCardDiv.style.display = 'none';
-    
-    // 2. Garante que a seção de resultados está visível e exibe o "Carregando..." nela
     resultsSection.style.display = 'block';
     resultsGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; font-weight: bold; color: #e3350d;">Buscando cartas na API... Por favor, aguarde.</p>';
 
     try {
-        let query = `name:${name}`;
-        if (subtype) {
-            query += ` subtypes:"${subtype}"`;
-        }
+        let queryParts = [];
+        if (name) queryParts.push(`name:"${name}*"`);
+        if (subtype) queryParts.push(`subtypes:"${subtype}"`);
+        if (rarity) queryParts.push(`rarity:"${rarity}"`);
+        if (set) queryParts.push(`set.id:"${set}"`);
 
-        // Faz a chamada para a API do Pokémon TCG
+        const query = queryParts.join(' ');
+
         const url = `https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(query)}&pageSize=50`;
         const response = await fetch(url);
         const data = await response.json();
 
         cartasEncontradas = data.data || [];
-
-        // 3. Limpa o texto de carregamento para colocar os resultados
         resultsGrid.innerHTML = '';
 
         if (cartasEncontradas.length > 0) {
@@ -57,7 +56,7 @@ async function buscarCartas() {
 
     } catch (error) {
         console.error(error);
-        resultsGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: red;">Erro ao conectar com a API de Pokémon. Verifique sua conexão.</p>';
+        resultsGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: red;">Erro ao conectar com a API de Pokémon.</p>';
     }
 }
 
@@ -67,9 +66,9 @@ function selecionarCarta(index) {
 
     document.getElementById('cardName').innerText = cartaSelecionada.name;
     document.getElementById('cardImage').src = cartaSelecionada.images.large;
-    document.getElementById('cardSet').innerText = cartaSelecionada.set.name;
+    document.getElementById('cardSetText').innerText = cartaSelecionada.set.name;
     document.getElementById('cardNumber').innerText = `${cartaSelecionada.number}/${cartaSelecionada.set.printedTotal}`;
-    document.getElementById('cardRarity').innerText = cartaSelecionada.rarity || 'Não informada';
+    document.getElementById('cardRarityText').innerText = cartaSelecionada.rarity || 'Não informada';
     
     const precoUSD = obterPrecoUSD(cartaSelecionada);
     if (precoUSD > 0) {
@@ -79,9 +78,7 @@ function selecionarCarta(index) {
         document.getElementById('cardPrice').innerText = 'Não disponível';
     }
 
-    // Reseta a quantidade para 1 ao abrir uma nova carta
     document.getElementById('addQuantity').value = 1;
-
     selectedCardDiv.style.display = 'block';
     selectedCardDiv.scrollIntoView({ behavior: 'smooth' });
 }
@@ -89,14 +86,13 @@ function selecionarCarta(index) {
 function confirmarAdicao() {
     if (!cartaSelecionada) return;
     
-    const qtdInput = document.getElementById('addQuantity');
-    const quantidade = parseInt(qtdInput.value) || 1;
+    const quantidade = parseInt(document.getElementById('addQuantity').value) || 1;
+    const estado = document.getElementById('addCondition').value;
     
     if (quantidade < 1) {
         alert('A quantidade mínima é 1!');
         return;
     }
 
-    // Função global do api.js
-    adicionarAoEstoque(cartaSelecionada, quantidade);
+    adicionarAoEstoque(cartaSelecionada, quantidade, estado);
 }

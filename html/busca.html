@@ -18,24 +18,44 @@
 
     <div class="container">
         <div class="search-container">
-            <input type="text" id="pokemonName" placeholder="Ex: Pikachu, Charizard...">
+            <input type="text" id="pokemonName" placeholder="Nome (Ex: Pikachu...)">
             
             <select id="cardSubtype">
-                <option value="">Todos os estilos</option>
+                <option value="">Todos os Estilos</option>
                 <option value="EX">EX</option>
                 <option value="GX">GX</option>
                 <option value="V">V</option>
                 <option value="VMAX">VMAX</option>
                 <option value="MEGA">Mega</option>
-                <option value="STAGE 1">Estágio 1 (Evoluído)</option>
-                <option value="BASIC">Básica (Padrão)</option>
+                <option value="STAGE 1">Estágio 1</option>
+                <option value="BASIC">Básica</option>
             </select>
 
-            <button onclick="buscarCartas()">Buscar Cartas</button>
+            <select id="cardRarity">
+                <option value="">Todas as Raridades</option>
+                <option value="Common">Comum</option>
+                <option value="Uncommon">Incomum</option>
+                <option value="Rare">Rara</option>
+                <option value="Rare Ultra">Rara Ultra</option>
+                <option value="Rare Holo">Holográfica Rara</option>
+                <option value="Promo">Promocional</option>
+            </select>
+
+            <select id="cardSet">
+                <option value="">Todas as Coleções</option>
+                <option value="sv3">Obsidian Flames</option>
+                <option value="sv1">Scarlet & Violet Base</option>
+                <option value="swsh12">Silver Tempest</option>
+                <option value="swsh11">Lost Origin</option>
+                <option value="swsh4">Vivid Voltage</option>
+                <option value="base1">Base Set (Clássico 1999)</option>
+            </select>
+
+            <button onclick="buscarCartas()">Buscar</button>
         </div>
 
         <div id="resultsSection" style="display: none; width: 100%;">
-            <h3>Clique na carta para ver detalhes e adicionar ao estoque:</h3>
+            <h3>Clique na carta para ver detalhes:</h3>
             <div class="grid" id="resultsGrid" style="grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));"></div>
         </div>
 
@@ -43,12 +63,25 @@
             <h2 id="cardName" style="margin-top: 0;">Nome</h2>
             <img id="cardImage" src="" alt="Imagem selecionada">
             <div class="card-info">
-                <p><strong>Coleção:</strong> <span id="cardSet"></span></p>
+                <p><strong>Coleção:</strong> <span id="cardSetText"></span></p>
                 <p><strong>Número:</strong> <span id="cardNumber"></span></p>
-                <p><strong>Raridade:</strong> <span id="cardRarity"></span></p>
-                <p><strong>Preço de Mercado (BRL):</strong> <span id="cardPrice" class="price"></span></p>
+                <p><strong>Raridade:</strong> <span id="cardRarityText"></span></p>
+                <p><strong>Preço (BRL - Base NM):</strong> <span id="cardPrice" class="price"></span></p>
             </div>
             
+            <hr style="border: 0; border-top: 1px solid #ddd; margin: 15px 0;">
+
+            <div style="text-align: left; margin-bottom: 15px; display: flex; flex-direction: column; gap: 8px;">
+                <div>
+                    <label><strong>Estado:</strong></label>
+                    <select id="addCondition" style="padding: 5px; font-size: 14px; width: 100%;">
+                        <option value="Nova (NM)">Nova (Near Mint - Perfeita)</option>
+                        <option value="Seminova (LP)">Seminova (Lightly Played)</option>
+                        <option value="Usada (MP)">Usada (Moderately Played)</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="quantity-selector">
                 <label for="addQuantity">Qtd:</label>
                 <input type="number" id="addQuantity" value="1" min="1">
