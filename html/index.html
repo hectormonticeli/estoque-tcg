@@ -16,7 +16,23 @@
         </nav>
     </header>
 
+    <div class="stats-panel" id="statsPanel">
+        Valor Total do Estoque: R$ 0,00
+    </div>
+
     <div class="container">
+        <div class="search-container">
+            <input type="text" id="filterName" placeholder="Filtrar por nome no estoque..." oninput="filtrarEstoque()">
+            <select id="filterRarity" onchange="filtrarEstoque()">
+                <option value="">Todas as raridades</option>
+                <option value="Common">Comum</option>
+                <option value="Uncommon">Incomum</option>
+                <option value="Rare">Rara</option>
+                <option value="Rare Ultra">Rara Ultra</option>
+                <option value="Promo">Promocional</option>
+            </select>
+        </div>
+
         <h2>Minha Coleção</h2>
         
         <div class="grid" id="estoqueGrid">

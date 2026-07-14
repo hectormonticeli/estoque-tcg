@@ -40,6 +40,21 @@ nav a:hover, nav a.active {
     color: white;
 }
 
+/* Painel de Estatísticas do Estoque */
+.stats-panel {
+    background: #e3350d;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+}
+
 /* Containers e Inputs */
 .container {
     width: 100%;
@@ -55,6 +70,7 @@ nav a:hover, nav a.active {
     gap: 10px;
     flex-wrap: wrap;
     justify-content: center;
+    width: 100%;
 }
 
 input, select {
@@ -87,6 +103,8 @@ button:hover {
 
 button.secondary {
     background-color: #333;
+    padding: 8px 14px;
+    font-size: 14px;
 }
 
 button.secondary:hover {
@@ -95,6 +113,8 @@ button.secondary:hover {
 
 button.danger {
     background-color: #d32f2f;
+    padding: 8px 14px;
+    font-size: 14px;
 }
 
 button.danger:hover {
@@ -117,6 +137,10 @@ button.danger:hover {
     text-align: center;
     box-shadow: 0 4px 10px rgba(0,0,0,0.08);
     transition: transform 0.2s;
+    box-sizing: border-box; /* Garante que o padding não "estoure" o tamanho do card */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Alinha o conteúdo verticalmente */
 }
 
 .grid-item:hover {
@@ -127,6 +151,16 @@ button.danger:hover {
     width: 100%;
     border-radius: 8px;
     margin-bottom: 10px;
+}
+
+/* Container de botões ajustado para ficar dentro do card */
+.card-actions {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    flex-wrap: wrap; /* Caso a tela encolha, os botões quebram linha sem sair do card */
+    margin-top: auto; /* Empurra os botões para o fundo do card */
+    padding-top: 10px;
 }
 
 /* Detalhes e Card Principal */

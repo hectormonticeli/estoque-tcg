@@ -1,39 +1,58 @@
-// Aguarda a cotação do dólar e as funções estarem prontas para desenhar o estoque
+// Aguarda a cotação do dólar e as funções estarem prontas
 window.addEventListener('DOMContentLoaded', () => {
-    // Dá um pequeno atraso para garantir que a cotação do dólar foi carregada do api.js
     setTimeout(renderizarEstoque, 300);
 });
 
+// Guardamos o estoque em uma variável para podermos filtrar sem perder os dados originais
+let estoqueLocal = [];
+
 function renderizarEstoque() {
-    const estoque = obterEstoque();
+    estoqueLocal = obterEstoque();
+    filtrarEstoque(); // Renderiza aplicando qualquer filtro ativo
+}
+
+function filtrarEstoque() {
+    const nomeFiltro = document.getElementById('filterName').value.toLowerCase();
+    const raridadeFiltro = document.getElementById('filterRarity').value;
     const estoqueGrid = document.getElementById('estoqueGrid');
     
     estoqueGrid.innerHTML = '';
 
-    if (estoque.length === 0) {
-        estoqueGrid.innerHTML = '<p style="text-align: center; width: 100%; color: gray;">Seu estoque está vazio. Vá em "Buscar Cartas" para adicionar alguma!</p>';
+    // Filtragem local
+    const estoqueFiltrado = estoqueLocal.filter(item => {
+        const correspondeNome = item.name.toLowerCase().includes(nomeFiltro);
+        const correspondeRaridade = raridadeFiltro === "" || item.rarity.includes(raridadeFiltro);
+        return correspondeNome && correspondeRaridade;
+    });
+
+    // Atualiza o valor total da coleção baseado no estoque ORIGINAL (sem filtros)
+    atualizarValorTotal(estoqueLocal);
+
+    if (estoqueFiltrado.length === 0) {
+        estoqueGrid.innerHTML = '<p style="text-align: center; width: 100%; color: gray;">Nenhuma carta corresponde aos filtros aplicados.</p>';
         return;
     }
 
-    estoque.forEach(item => {
+    estoqueFiltrado.forEach(item => {
         const cardItem = document.createElement('div');
         cardItem.className = 'grid-item';
 
-        // Calcula o preço total desse lote em Real
         const precoBRL = item.priceUSD ? (item.priceUSD * cotacaoDolar) : 0;
         const precoExibicao = precoBRL > 0 ? `R$ ${precoBRL.toFixed(2)}` : 'N/A';
 
         cardItem.innerHTML = `
-            <img src="${item.image}" alt="${item.name}">
-            <h3>${item.name}</h3>
-            <p style="font-size: 0.9em; margin: 5px 0; color: gray;">${item.set} (${item.number})</p>
-            <p class="price" style="margin: 5px 0;">${precoExibicao}</p>
-            <p style="font-weight: bold; font-size: 1.1em; margin: 10px 0;">Quantidade: <span id="qtd-${item.id}">${item.quantidade}</span></p>
+            <div>
+                <img src="${item.image}" alt="${item.name}">
+                <h3 style="margin: 5px 0; font-size: 1.1em;">${item.name}</h3>
+                <p style="font-size: 0.85em; margin: 3px 0; color: gray;">${item.set} (${item.number})</p>
+                <p class="price" style="margin: 5px 0;">${precoExibicao}</p>
+                <p style="font-weight: bold; font-size: 1em; margin: 5px 0;">Qtd: <span>${item.quantidade}</span></p>
+            </div>
             
-            <div style="display: flex; gap: 5px; justify-content: center; margin-top: 10px;">
+            <div class="card-actions">
                 <button class="secondary" onclick="alterarQuantidade('${item.id}', 1)">+</button>
                 <button class="secondary" onclick="alterarQuantidade('${item.id}', -1)">-</button>
-                <button class="danger" onclick="removerDoEstoque('${item.id}')">Remover</button>
+                <button class="danger" onclick="removerDoEstoque('${item.id}')">Excluir</button>
             </div>
         `;
 
@@ -41,7 +60,7 @@ function renderizarEstoque() {
     });
 }
 
-// Altera a quantidade de uma carta diretamente pelo estoque (+1 ou -1)
+// Altera a quantidade direto do estoque (+1 ou -1)
 function alterarQuantidade(id, delta) {
     let estoque = obterEstoque();
     const index = estoque.findIndex(item => item.id === id);
@@ -49,7 +68,6 @@ function alterarQuantidade(id, delta) {
     if (index !== -1) {
         estoque[index].quantidade += delta;
         
-        // Se a quantidade chegar a 0, removemos o item
         if (estoque[index].quantidade <= 0) {
             estoque.splice(index, 1);
         }
@@ -67,4 +85,19 @@ function removerDoEstoque(id) {
         salvarEstoque(estoque);
         renderizarEstoque();
     }
+}
+
+// Calcula e exibe o valor financeiro acumulado das cartas
+function atualizarValorTotal(estoque) {
+    let valorTotalBRL = 0;
+
+    estoque.forEach(item => {
+        if (item.priceUSD) {
+            const precoCartaBRL = item.priceUSD * cotacaoDolar;
+            valorTotalBRL += (precoCartaBRL * item.quantidade);
+        }
+    });
+
+    const statsPanel = document.getElementById('statsPanel');
+    statsPanel.innerText = `Valor Total do Estoque: R$ ${valorTotalBRL.toFixed(2)}`;
 }
