@@ -1,201 +1,319 @@
+/* --- VARIÁVEIS DE CORES E ESTILOS --- */
+:root {
+    --bg-primary: #12141c;
+    --bg-secondary: #1a1d29;
+    --bg-card: #222638;
+    --text-main: #f0f2f5;
+    --text-muted: #9fa4bc;
+    --brand-color: #ff3e3e;
+    --brand-hover: #e02424;
+    --success-color: #2ec4b6;
+    --danger-color: #e63946;
+    --border-radius-lg: 16px;
+    --border-radius-md: 8px;
+    --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* --- ESTILOS GERAIS --- */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f7f6;
-    color: #333;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-main);
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px;
+    padding: 30px 20px;
     margin: 0;
+    min-height: 100vh;
 }
 
 header {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 }
 
 h1 {
-    color: #e3350d;
-    margin-bottom: 10px;
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: var(--text-main);
+    margin: 0 0 15px 0;
+    background: linear-gradient(135deg, #fff 0%, var(--brand-color) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
+/* --- NAVEGAÇÃO --- */
 nav {
     display: flex;
-    gap: 15px;
-    margin-bottom: 20px;
+    gap: 10px;
+    background-color: var(--bg-secondary);
+    padding: 6px;
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: var(--shadow-soft);
 }
 
 nav a {
     text-decoration: none;
-    color: #333;
-    font-weight: bold;
-    padding: 8px 16px;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 10px 22px;
     border-radius: 20px;
-    background-color: #ddd;
-    transition: background 0.2s;
+    transition: var(--transition-smooth);
 }
 
-nav a:hover, nav a.active {
-    background-color: #e3350d;
-    color: white;
+nav a:hover {
+    color: var(--text-main);
+    background-color: rgba(255, 255, 255, 0.03);
 }
 
-/* Painel de Estatísticas do Estoque */
+nav a.active {
+    background-color: var(--brand-color);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(255, 62, 62, 0.4);
+}
+
+/* --- PAINEL DE ESTATÍSTICAS --- */
 .stats-panel {
-    background: #e3350d;
-    color: white;
-    padding: 15px 25px;
-    border-radius: 12px;
-    font-size: 1.2rem;
-    font-weight: bold;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    background: linear-gradient(135deg, var(--brand-color) 0%, #b51c1c 100%);
+    color: #fff;
+    padding: 20px 30px;
+    border-radius: var(--border-radius-lg);
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    box-shadow: 0 10px 25px rgba(255, 62, 62, 0.25);
     text-align: center;
     width: 100%;
-    max-width: 400px;
+    max-width: 440px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Containers e Inputs */
+/* --- CONTAINER PRINCIPAL --- */
 .container {
     width: 100%;
-    max-width: 1000px;
+    max-width: 1100px;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
+/* --- FILTROS E INPUTS --- */
 .search-container {
-    margin-bottom: 25px;
+    background-color: var(--bg-secondary);
+    padding: 20px;
+    border-radius: var(--border-radius-lg);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: var(--shadow-soft);
+    margin-bottom: 35px;
     display: flex;
-    gap: 10px;
+    gap: 12px;
     flex-wrap: wrap;
     justify-content: center;
     width: 100%;
+    box-sizing: border-box;
 }
 
 input, select {
-    padding: 12px;
-    font-size: 16px;
-    border: 2px solid #ccc;
-    border-radius: 8px;
-    background: white;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    background-color: var(--bg-primary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius-md);
+    outline: none;
+    transition: var(--transition-smooth);
+}
+
+input:focus, select:focus {
+    border-color: var(--brand-color);
+    box-shadow: 0 0 0 3px rgba(255, 62, 62, 0.15);
+}
+
+input::placeholder {
+    color: var(--text-muted);
 }
 
 input[type="number"] {
-    width: 80px;
+    width: 90px;
+    text-align: center;
 }
 
+/* --- BOTÕES --- */
 button {
-    padding: 12px 20px;
-    font-size: 16px;
-    background-color: #e3350d;
-    color: white;
+    padding: 12px 24px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #fff;
+    background-color: var(--brand-color);
     border: none;
-    border-radius: 8px;
+    border-radius: var(--border-radius-md);
     cursor: pointer;
-    font-weight: bold;
-    transition: background 0.2s;
+    transition: var(--transition-smooth);
+    box-shadow: 0 4px 12px rgba(255, 62, 62, 0.2);
 }
 
 button:hover {
-    background-color: #b52a0a;
+    background-color: var(--brand-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(255, 62, 62, 0.3);
+}
+
+button:active {
+    transform: translateY(0);
 }
 
 button.secondary {
-    background-color: #333;
-    padding: 8px 14px;
-    font-size: 14px;
+    background-color: rgba(255, 255, 255, 0.08);
+    color: var(--text-main);
+    box-shadow: none;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 button.secondary:hover {
-    background-color: #111;
+    background-color: rgba(255, 255, 255, 0.15);
+    box-shadow: none;
 }
 
 button.danger {
-    background-color: #d32f2f;
-    padding: 8px 14px;
-    font-size: 14px;
+    background-color: var(--danger-color);
+    box-shadow: 0 4px 12px rgba(230, 57, 70, 0.2);
 }
 
 button.danger:hover {
-    background-color: #9a0007;
+    background-color: #c92a37;
+    box-shadow: 0 6px 18px rgba(230, 57, 70, 0.3);
 }
 
-/* Grades (Grids) de Cartas */
+/* --- GRADE DE CARTAS --- */
 .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 20px;
+    gap: 24px;
     width: 100%;
-    margin-top: 20px;
+    margin-top: 25px;
 }
 
 .grid-item {
-    background: white;
-    border-radius: 12px;
-    padding: 15px;
+    background-color: var(--bg-card);
+    border-radius: var(--border-radius-lg);
+    padding: 16px;
     text-align: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    transition: transform 0.2s;
-    box-sizing: border-box; /* Garante que o padding não "estoure" o tamanho do card */
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: var(--transition-smooth);
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* Alinha o conteúdo verticalmente */
+    justify-content: space-between;
 }
 
 .grid-item:hover {
-    transform: translateY(-5px);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
 .grid-item img {
     width: 100%;
-    border-radius: 8px;
-    margin-bottom: 10px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-/* Container de botões ajustado para ficar dentro do card */
+.grid-item h3 {
+    margin: 8px 0 4px 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+/* Container de Ações dentro do Card */
 .card-actions {
     display: flex;
-    gap: 5px;
+    gap: 6px;
     justify-content: center;
-    flex-wrap: wrap; /* Caso a tela encolha, os botões quebram linha sem sair do card */
-    margin-top: auto; /* Empurra os botões para o fundo do card */
-    padding-top: 10px;
+    flex-wrap: wrap;
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Detalhes e Card Principal */
+.card-actions button {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    border-radius: var(--border-radius-md);
+}
+
+/* --- PAINEL DETALHADO (SELECIONADO) --- */
 .selected-card-container {
     display: none;
-    background-color: white;
-    border-radius: 15px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-    padding: 25px;
-    max-width: 350px;
+    background-color: var(--bg-secondary);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    padding: 30px;
+    max-width: 380px;
     text-align: center;
-    border-top: 5px solid #e3350d;
-    margin-top: 20px;
+    margin-top: 35px;
+    animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .selected-card-container img {
-    max-width: 240px;
+    max-width: 260px;
     height: auto;
-    border-radius: 10px;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    transition: var(--transition-smooth);
+}
+
+.selected-card-container img:hover {
+    transform: scale(1.05);
 }
 
 .card-info {
-    margin-top: 20px;
+    margin-top: 25px;
     text-align: left;
+    background-color: rgba(0, 0, 0, 0.15);
+    padding: 16px;
+    border-radius: var(--border-radius-md);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.card-info p {
+    margin: 8px 0;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+}
+
+.card-info strong {
+    color: var(--text-main);
 }
 
 .price {
-    color: #2e7d32;
-    font-weight: bold;
+    color: var(--success-color) !important;
+    font-weight: 800;
+    font-size: 1.15rem;
 }
 
 .quantity-selector {
-    margin-top: 15px;
+    margin-top: 20px;
     display: flex;
-    gap: 10px;
+    gap: 12px;
     justify-content: center;
     align-items: center;
+}
+
+/* --- ANIMAÇÃO DE ENTRADA --- */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
