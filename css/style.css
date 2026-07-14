@@ -1,0 +1,167 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f6;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    margin: 0;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+h1 {
+    color: #e3350d;
+    margin-bottom: 10px;
+}
+
+nav {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+nav a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    padding: 8px 16px;
+    border-radius: 20px;
+    background-color: #ddd;
+    transition: background 0.2s;
+}
+
+nav a:hover, nav a.active {
+    background-color: #e3350d;
+    color: white;
+}
+
+/* Containers e Inputs */
+.container {
+    width: 100%;
+    max-width: 1000px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.search-container {
+    margin-bottom: 25px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+input, select {
+    padding: 12px;
+    font-size: 16px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background: white;
+}
+
+input[type="number"] {
+    width: 80px;
+}
+
+button {
+    padding: 12px 20px;
+    font-size: 16px;
+    background-color: #e3350d;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+button:hover {
+    background-color: #b52a0a;
+}
+
+button.secondary {
+    background-color: #333;
+}
+
+button.secondary:hover {
+    background-color: #111;
+}
+
+button.danger {
+    background-color: #d32f2f;
+}
+
+button.danger:hover {
+    background-color: #9a0007;
+}
+
+/* Grades (Grids) de Cartas */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.grid-item {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    transition: transform 0.2s;
+}
+
+.grid-item:hover {
+    transform: translateY(-5px);
+}
+
+.grid-item img {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+/* Detalhes e Card Principal */
+.selected-card-container {
+    display: none;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    padding: 25px;
+    max-width: 350px;
+    text-align: center;
+    border-top: 5px solid #e3350d;
+    margin-top: 20px;
+}
+
+.selected-card-container img {
+    max-width: 240px;
+    height: auto;
+    border-radius: 10px;
+}
+
+.card-info {
+    margin-top: 20px;
+    text-align: left;
+}
+
+.price {
+    color: #2e7d32;
+    font-weight: bold;
+}
+
+.quantity-selector {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+}

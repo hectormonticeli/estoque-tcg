@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estoque Pokémon - Buscar Cartas</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+    <header>
+        <h1>PokeStock</h1>
+        <nav>
+            <a href="index.html">Meu Estoque</a>
+            <a href="busca.html" class="active">Buscar Cartas</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="search-container">
+            <input type="text" id="pokemonName" placeholder="Ex: Pikachu, Charizard...">
+            
+            <select id="cardSubtype">
+                <option value="">Todos os estilos</option>
+                <option value="EX">EX</option>
+                <option value="GX">GX</option>
+                <option value="V">V</option>
+                <option value="VMAX">VMAX</option>
+                <option value="MEGA">Mega</option>
+                <option value="STAGE 1">Estágio 1 (Evoluído)</option>
+                <option value="BASIC">Básica (Padrão)</option>
+            </select>
+
+            <button onclick="buscarCartas()">Buscar Cartas</button>
+        </div>
+
+        <div id="resultsSection" style="display: none; width: 100%;">
+            <h3>Clique na carta para ver detalhes e adicionar ao estoque:</h3>
+            <div class="grid" id="resultsGrid" style="grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));"></div>
+        </div>
+
+        <div id="selectedCard" class="selected-card-container">
+            <h2 id="cardName" style="margin-top: 0;">Nome</h2>
+            <img id="cardImage" src="" alt="Imagem selecionada">
+            <div class="card-info">
+                <p><strong>Coleção:</strong> <span id="cardSet"></span></p>
+                <p><strong>Número:</strong> <span id="cardNumber"></span></p>
+                <p><strong>Raridade:</strong> <span id="cardRarity"></span></p>
+                <p><strong>Preço de Mercado (BRL):</strong> <span id="cardPrice" class="price"></span></p>
+            </div>
+            
+            <div class="quantity-selector">
+                <label for="addQuantity">Qtd:</label>
+                <input type="number" id="addQuantity" value="1" min="1">
+                <button onclick="confirmarAdicao()">Adicionar ao Estoque</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/busca.js"></script>
+</body>
+</html>
