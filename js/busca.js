@@ -1,5 +1,13 @@
+// INSIRA A SUA CHAVE DA API AQUI DE VERDADE
+const MINHA_API_KEY = "3f5ec81a-19cf-4d7f-85ba-3d535630a338"; 
+
 let cartasEncontradas = [];
 let cartaSelecionada = null;
+
+// Variáveis para controlar a paginação
+let paginaAtual = 1;
+const limitePorPagina = 30;
+let queryAtual = "";
 
 async function buscarCartas() {
     const name = document.getElementById('pokemonName').value.trim();
@@ -18,30 +26,60 @@ async function buscarCartas() {
     
     selectedCardDiv.style.display = 'none';
     resultsSection.style.display = 'block';
+    
+    // Reseta o controle de páginas para uma nova busca
+    paginaAtual = 1;
+    cartasEncontradas = [];
     resultsGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; font-weight: bold; color: #e3350d;">Buscando cartas na API... Por favor, aguarde.</p>';
 
+    // Remove o botão de carregar mais antigo se ele existir
+    removerBotaoCarregarMais();
+
+    // Monta a query de busca
+    let queryParts = [];
+    if (name) queryParts.push(`name:"${name}*"`);
+    if (subtype) queryParts.push(`subtypes:"${subtype}"`);
+    if (rarity) queryParts.push(`rarity:"${rarity}"`);
+    if (set) queryParts.push(`set.id:"${set}"`);
+
+    queryAtual = queryParts.join(' ');
+
+    // Dispara a primeira busca
+    executarChamadaAPI();
+}
+
+async function executarChamadaAPI() {
+    const resultsGrid = document.getElementById('resultsGrid');
+    const url = `https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(queryAtual)}&page=${paginaAtual}&pageSize=${limitePorPagina}`;
+
     try {
-        let queryParts = [];
-        if (name) queryParts.push(`name:"${name}*"`);
-        if (subtype) queryParts.push(`subtypes:"${subtype}"`);
-        if (rarity) queryParts.push(`rarity:"${rarity}"`);
-        if (set) queryParts.push(`set.id:"${set}"`);
-
-        const query = queryParts.join(' ');
-
-        const url = `https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(query)}&pageSize=50`;
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'X-Api-Key': MINHA_API_KEY
+            }
+        });
         const data = await response.json();
+        const novasCartas = data.data || [];
 
-        cartasEncontradas = data.data || [];
-        resultsGrid.innerHTML = '';
+        // Remove a mensagem de "Carregando..." na primeira página
+        if (paginaAtual === 1) {
+            resultsGrid.innerHTML = '';
+        }
 
-        if (cartasEncontradas.length > 0) {
-            cartasEncontradas.forEach((carta, index) => {
+        if (novasCartas.length > 0) {
+            // Guarda as cartas encontradas no array global para seleção posterior
+            // Usamos o operador "spread" (...) para juntar as cartas novas com as que já tínhamos
+            const offsetAnterior = cartasEncontradas.length;
+            cartasEncontradas = [...cartasEncontradas, ...novasCartas];
+
+            // Renderiza apenas as novas cartas adicionadas
+            novasCartas.forEach((carta, index) => {
                 const gridItem = document.createElement('div');
                 gridItem.className = 'grid-item';
                 gridItem.style.cursor = 'pointer';
-                gridItem.setAttribute('onclick', `selecionarCarta(${index})`);
+                // O index real do array global será o offset anterior + o index atual do loop
+                gridItem.setAttribute('onclick', `selecionarCarta(${offsetAnterior + index})`);
                 
                 const img = document.createElement('img');
                 img.src = carta.images.small;
@@ -50,13 +88,57 @@ async function buscarCartas() {
                 gridItem.appendChild(img);
                 resultsGrid.appendChild(gridItem);
             });
+
+            // Se a API retornou o limite máximo de cartas, significa que provavelmente há mais nas próximas páginas
+            if (novasCartas.length === limitePorPagina) {
+                criarBotaoCarregarMais();
+            } else {
+                removerBotaoCarregarMais();
+            }
+
         } else {
-            resultsGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: gray;">Nenhuma carta encontrada com esses critérios.</p>';
+            if (paginaAtual === 1) {
+                resultsGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: gray;">Nenhuma carta encontrada com esses critérios.</p>';
+            }
+            removerBotaoCarregarMais();
         }
 
     } catch (error) {
         console.error(error);
-        resultsGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: red;">Erro ao conectar com a API de Pokémon.</p>';
+        if (paginaAtual === 1) {
+            resultsGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: red;">Erro ao conectar com a API de Pokémon.</p>';
+        } else {
+            alert('Erro ao carregar mais cartas.');
+        }
+    }
+}
+
+// Cria o botão "Carregar Mais" dinamicamente abaixo da grade de resultados
+function criarBotaoCarregarMais() {
+    removerBotaoCarregarMais(); // Garante que não haverá duplicados
+
+    const resultsSection = document.getElementById('resultsSection');
+    const btn = document.createElement('button');
+    btn.id = 'btnCarregarMais';
+    btn.innerText = 'Carregar mais cartas...';
+    btn.style.margin = '20px auto';
+    btn.style.display = 'block';
+    
+    // Função que avança a página e busca mais dados
+    btn.onclick = () => {
+        paginaAtual++;
+        btn.innerText = 'Carregando...';
+        btn.disabled = true;
+        executarChamadaAPI();
+    };
+
+    resultsSection.appendChild(btn);
+}
+
+function removerBotaoCarregarMais() {
+    const btnExistente = document.getElementById('btnCarregarMais');
+    if (btnExistente) {
+        btnExistente.remove();
     }
 }
 
